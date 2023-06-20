@@ -1,0 +1,35 @@
+name: Downloader-Uploader
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+          rclone version
+
+      - name: Copy rclone.conf from cloned repository
+        run: |
+          cp $GITHUB_WORKSPACE/rclone.conf $HOME/.config/rclone/rclone.conf
+
+      - name: Requirements
+        run: |
+          sudo apt install -y aria2
+
+      - name: Download Files
+        run: |
+          aria2c -x 16 -d Downloads "URL"
+
+      - name: Upload to YourCloudProvider
+        run: |
+          rclone copy Downloads YourCloudProvider:Downloads
